@@ -62,7 +62,7 @@ LineChart getPriceChart(List<FlSpot> spots) {
         topTitles: SideTitles(),
         bottomTitles: SideTitles(
           showTitles: true,
-          interval: (int.parse(to) - int.parse(from)) * 300,
+          interval: (int.parse(to) - int.parse(from)) * 650,
           margin: 8,
           textAlign: TextAlign.right,
           getTextStyles: (context, value) => const TextStyle(
@@ -71,8 +71,8 @@ LineChart getPriceChart(List<FlSpot> spots) {
             fontSize: 10,
           ),
           getTitles: (value) {
-            int v = value.round() * 1000;
-            return DateFormat("dd/MM")
+            int v = value.round();
+            return DateFormat("dd/MM/yyyy")
                 .format(DateTime.fromMillisecondsSinceEpoch(v));
           },
         ),
@@ -104,12 +104,20 @@ FutureBuilder getChartBuilder() {
   );
 }
 
+void setRequestTime(Duration duration) {
+  DateTime past = DateTime.now().subtract(duration);
+  DateTime now = DateTime.now();
+  from = (past.millisecondsSinceEpoch / 1000).floor().toString();
+  to = (now.millisecondsSinceEpoch / 1000).floor().toString();
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    TextEditingController controller = TextEditingController();
     return Scaffold(
       appBar: AppBar(title: const Text("Price App")),
-      body: Column(
+      body: Wrap(
         children: [
           SizedBox(
             height: 300,
@@ -117,9 +125,55 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Padding(
                 padding: const EdgeInsets.all(20), child: getChartBuilder()),
           ),
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  child: Text("3MTH"),
+                  onPressed: () {
+                    setRequestTime(const Duration(days: 90));
+                    setState(() {});
+                  },
+                ),
+              ),
+              Expanded(
+                child: TextButton(
+                  child: Text("1Y"),
+                  onPressed: () {
+                    setRequestTime(const Duration(days: 365));
+                    setState(() {});
+                  },
+                ),
+              ),
+              Expanded(
+                child: TextButton(
+                  child: Text("3Y"),
+                  onPressed: () {
+                    setRequestTime(const Duration(days: 1090));
+                    setState(() {});
+                  },
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 30, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Expanded(child: Text("Asset name:")),
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: controller,
+                  ),
+                ),
+              ],
+            ),
+          ),
           TextButton(
               onPressed: () {
-                assetName = "ethereum";
+                assetName = controller.text;
                 setState(() {});
               },
               child: const Text("Refresh")),
