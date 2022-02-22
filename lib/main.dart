@@ -50,65 +50,81 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+String assetName = "bitcoin";
+String vsCurrency = "eur";
+String from = "1577836800";
+String to = "1579936800";
+
+LineChart getPriceChart(List<FlSpot> spots) {
+  return LineChart(
+    LineChartData(
+      titlesData: FlTitlesData(
+        topTitles: SideTitles(),
+        bottomTitles: SideTitles(
+          showTitles: true,
+          interval: (int.parse(to) - int.parse(from)) * 300,
+          margin: 8,
+          textAlign: TextAlign.right,
+          getTextStyles: (context, value) => const TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.normal,
+            fontSize: 10,
+          ),
+          getTitles: (value) {
+            int v = value.round() * 1000;
+            return DateFormat("dd/MM")
+                .format(DateTime.fromMillisecondsSinceEpoch(v));
+          },
+        ),
+      ),
+      lineBarsData: [
+        LineChartBarData(
+          dotData: FlDotData(show: false),
+          spots: spots,
+        ),
+      ],
+    ),
+  );
+}
+
+FutureBuilder getChartBuilder() {
+  return FutureBuilder(
+    future: PriceAPICall().getPosts(vsCurrency, from, to, assetName),
+    builder: (BuildContext context, AsyncSnapshot snapshot) {
+      if (snapshot.hasData) {
+        List<FlSpot> spots = [];
+        Map<int, double> map = snapshot.data as Map<int, double>;
+        map.forEach((key, value) =>
+            {spots.add(FlSpot(double.parse(key.toString()), value))});
+        return getPriceChart(spots);
+      } else {
+        return const Text("no data");
+      }
+    },
+  );
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    String assetName = "bitcoin";
-    String vsCurrency = "eur";
-    String from = "1577836800";
-    String to = "1579936800";
-      
-    return 
-      FutureBuilder(
-        future: PriceAPICall().getPosts(vsCurrency, from, to, assetName),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            List<FlSpot> spots = [];
-            Map<int, double> map = snapshot.data as Map<int, double>;
-            map.forEach((key, value) =>
-                {spots.add(FlSpot(double.parse(key.toString()), value))});
-            return Scaffold(
-              appBar: AppBar(title: const Text("Price App")),
-              body: SizedBox(
-                height: 300,
-                width: 500,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: LineChart(
-                    LineChartData(
-                      titlesData: FlTitlesData(
-                        topTitles: SideTitles(),
-                        bottomTitles: SideTitles(
-                          showTitles: true,
-                          interval: (int.parse(to) - int.parse(from)) *300,
-                          margin: 8,
-                          textAlign: TextAlign.right,
-                          getTextStyles: (context, value) => const TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.normal,
-                              fontSize: 10,
-                            ),
-                          getTitles: (value) {
-                            int v = value.round() * 1000;
-                            return DateFormat("dd/MM")
-                                .format(DateTime.fromMillisecondsSinceEpoch(v));
-                          },
-                        ),
-                      ),
-                      lineBarsData: [
-                        LineChartBarData(
-                          dotData: FlDotData(show: false),
-                          spots: spots,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          } else {
-            return const Text("no data");
-          }
-        });
+    return Scaffold(
+      appBar: AppBar(title: const Text("Price App")),
+      body: Column(
+        children: [
+          SizedBox(
+            height: 300,
+            width: 500,
+            child: Padding(
+                padding: const EdgeInsets.all(20), child: getChartBuilder()),
+          ),
+          TextButton(
+              onPressed: () {
+                assetName = "ethereum";
+                setState(() {});
+              },
+              child: const Text("Refresh")),
+        ],
+      ),
+    );
   }
 }
