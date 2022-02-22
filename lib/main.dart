@@ -50,23 +50,55 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+class AppColors {
+  Color dark = Color.fromRGBO(26, 26, 64, 1);
+  Color dark_purple = Color.fromRGBO(39, 0, 130, 1);
+  Color purple = Color.fromRGBO(122, 11, 192, 1);
+  Color pink = Color.fromRGBO(250, 88, 182, 1);
+}
+
 String assetName = "bitcoin";
 String vsCurrency = "eur";
 String from = "1577836800";
 String to = "1579936800";
-
+List<Color> gradientColors = [
+  AppColors().dark_purple,
+  AppColors().purple,
+];
+SideTitles get sideTitles => SideTitles(
+    showTitles: true,
+    reservedSize: 40,
+    getTextStyles: (context, value) {
+      return const TextStyle(color: Colors.white30);
+    });
 LineChart getPriceChart(List<FlSpot> spots) {
   return LineChart(
     LineChartData(
+      gridData: FlGridData(
+        getDrawingVerticalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: const Color(0xff37434d),
+            strokeWidth: 1,
+          );
+        },
+      ),
       titlesData: FlTitlesData(
-        topTitles: SideTitles(),
+        rightTitles: sideTitles,
+        leftTitles: sideTitles,
+        topTitles: SideTitles(showTitles: false),
         bottomTitles: SideTitles(
           showTitles: true,
           interval: (int.parse(to) - int.parse(from)) * 650,
           margin: 8,
           textAlign: TextAlign.right,
           getTextStyles: (context, value) => const TextStyle(
-            color: Colors.red,
+            color: Colors.white30,
             fontWeight: FontWeight.normal,
             fontSize: 10,
           ),
@@ -79,6 +111,15 @@ LineChart getPriceChart(List<FlSpot> spots) {
       ),
       lineBarsData: [
         LineChartBarData(
+          colors: [AppColors().pink],
+          belowBarData: BarAreaData(
+            show: true,
+            colors:
+                gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+          ),
+          isCurved: true,
+          isStrokeCapRound: true,
+          preventCurveOverShooting: true,
           dotData: FlDotData(show: false),
           spots: spots,
         ),
@@ -112,50 +153,101 @@ void setRequestTime(Duration duration) {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    TextEditingController controller = TextEditingController();
-    return Scaffold(
-      appBar: AppBar(title: const Text("Price App")),
-      body: Wrap(
+  // Time range buttons
+  Row get timeRangeButtons => Row(
         children: [
-          SizedBox(
-            height: 300,
-            width: 500,
-            child: Padding(
-                padding: const EdgeInsets.all(20), child: getChartBuilder()),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  child: Text("3MTH"),
+          Expanded(
+            child: Container(
+              height: 40,
+              width: 100,
+              child: FittedBox(
+                child: FloatingActionButton.extended(
+                  backgroundColor: AppColors().dark_purple,
+                  splashColor: AppColors().pink,
+                  extendedPadding: const EdgeInsets.all(30),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                  label:
+                      Text("3MTH", style: TextStyle(color: AppColors().pink)),
                   onPressed: () {
                     setRequestTime(const Duration(days: 90));
                     setState(() {});
                   },
                 ),
               ),
-              Expanded(
-                child: TextButton(
-                  child: Text("1Y"),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: 40,
+              width: 100,
+              child: FittedBox(
+                child: FloatingActionButton.extended(
+                  backgroundColor: AppColors().dark_purple,
+                  splashColor: AppColors().pink,
+                  extendedPadding: const EdgeInsets.all(40),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                  label: Text("1Y", style: TextStyle(color: AppColors().pink)),
                   onPressed: () {
                     setRequestTime(const Duration(days: 365));
                     setState(() {});
                   },
                 ),
               ),
-              Expanded(
-                child: TextButton(
-                  child: Text("3Y"),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: 40,
+              width: 100,
+              child: FittedBox(
+                child: FloatingActionButton.extended(
+                  backgroundColor: AppColors().dark_purple,
+                  splashColor: AppColors().pink,
+                  extendedPadding: const EdgeInsets.all(40),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                  label: Text("3Y", style: TextStyle(color: AppColors().pink)),
                   onPressed: () {
                     setRequestTime(const Duration(days: 1090));
                     setState(() {});
                   },
                 ),
               ),
-            ],
+            ),
           ),
+        ],
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    TextEditingController controller = TextEditingController();
+    return Scaffold(
+      backgroundColor: AppColors().dark,
+      appBar: AppBar(
+          actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.menu))],
+          backgroundColor: AppColors().dark_purple,
+          title: const Text("Price App")),
+      body: Wrap(
+        children: [
+          Center(
+            child: Title(
+              child: Text(assetName.toUpperCase(),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontSize: 40,
+                      color: Colors.white)),
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(
+            height: 300,
+            width: 500,
+            child: Padding(
+                padding: const EdgeInsets.all(10), child: getChartBuilder()),
+          ),
+          timeRangeButtons,
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 10, 30, 10),
             child: Row(
