@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:priceapp/widgets/InputWithTitle.dart';
+import 'package:priceapp/widgets/TimeRangeButton.dart';
 import "price_api.dart";
 import 'package:intl/intl.dart';
 
@@ -153,76 +155,9 @@ void setRequestTime(Duration duration) {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // Time range buttons
-  Row get timeRangeButtons => Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: 40,
-              width: 100,
-              child: FittedBox(
-                child: FloatingActionButton.extended(
-                  backgroundColor: AppColors().dark_purple,
-                  splashColor: AppColors().pink,
-                  extendedPadding: const EdgeInsets.all(30),
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                  label:
-                      Text("3MTH", style: TextStyle(color: AppColors().pink)),
-                  onPressed: () {
-                    setRequestTime(const Duration(days: 90));
-                    setState(() {});
-                  },
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              height: 40,
-              width: 100,
-              child: FittedBox(
-                child: FloatingActionButton.extended(
-                  backgroundColor: AppColors().dark_purple,
-                  splashColor: AppColors().pink,
-                  extendedPadding: const EdgeInsets.all(40),
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                  label: Text("1Y", style: TextStyle(color: AppColors().pink)),
-                  onPressed: () {
-                    setRequestTime(const Duration(days: 365));
-                    setState(() {});
-                  },
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              height: 40,
-              width: 100,
-              child: FittedBox(
-                child: FloatingActionButton.extended(
-                  backgroundColor: AppColors().dark_purple,
-                  splashColor: AppColors().pink,
-                  extendedPadding: const EdgeInsets.all(40),
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                  label: Text("3Y", style: TextStyle(color: AppColors().pink)),
-                  onPressed: () {
-                    setRequestTime(const Duration(days: 1090));
-                    setState(() {});
-                  },
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-
   @override
   Widget build(BuildContext context) {
-    TextEditingController controller = TextEditingController();
+    TextEditingController controller = TextEditingController(text: "Enter asset name");
     return Scaffold(
       backgroundColor: AppColors().dark,
       appBar: AppBar(
@@ -247,26 +182,32 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Padding(
                 padding: const EdgeInsets.all(10), child: getChartBuilder()),
           ),
-          timeRangeButtons,
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 30, 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Expanded(child: Text("Asset name:")),
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: controller,
-                  ),
-                ),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TimeRangeButton("3MTH", () {
+                setRequestTime(const Duration(days: 90));
+                setState(() {});
+              }),
+              TimeRangeButton("1Y", () {
+                setRequestTime(const Duration(days: 365));
+                setState(() {});
+              }),
+              TimeRangeButton("3Y", () {
+                setRequestTime(const Duration(days: 1095));
+                setState(() {});
+              }),
+            ],
           ),
+          InputWithTitle(controller, "Asset name:"),
           TextButton(
               onPressed: () {
-                assetName = controller.text;
-                setState(() {});
+                // Dumb string check that will need to be fixed later
+                if(controller.text != "" && controller.text != "Enter asset name") {
+                  assetName = controller.text;
+                  setState(() {});
+                }
+                
               },
               child: const Text("Refresh")),
         ],
