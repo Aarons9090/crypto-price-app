@@ -19,9 +19,7 @@ class TimeRangeButton extends StatelessWidget {
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(15.0))),
           label: Text(title, style: TextStyle(color: AppColors().pink)),
-          onPressed: () {
-            onPressFunc;
-          }),
+          onPressed: () => {onPressFunc()}),
     );
   }
 }

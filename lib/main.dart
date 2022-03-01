@@ -157,7 +157,8 @@ void setRequestTime(Duration duration) {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    TextEditingController controller = TextEditingController(text: "Enter asset name");
+    TextEditingController controller =
+        TextEditingController(text: "Enter asset name");
     return Scaffold(
       backgroundColor: AppColors().dark,
       appBar: AppBar(
@@ -203,11 +204,11 @@ class _MyHomePageState extends State<MyHomePage> {
           TextButton(
               onPressed: () {
                 // Dumb string check that will need to be fixed later
-                if(controller.text != "" && controller.text != "Enter asset name") {
+                if (controller.text != "" &&
+                    controller.text != "Enter asset name") {
                   assetName = controller.text;
                   setState(() {});
                 }
-                
               },
               child: const Text("Refresh")),
         ],
